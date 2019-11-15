@@ -1,0 +1,58 @@
+<html>
+<head>
+    <meta charset="UTF-8"></meta>
+    <title>springboot项目WebSocket测试demo</title>
+</head>
+<body>
+<h3>在线聊天</h3>
+<br />
+<input id="text" type="text" />
+<button onclick="send()">发送测试</button>
+<hr />
+<button onclick="close()">关闭连接</button>
+<hr />
+<div id="message"></div>
+<script>
+    var websocket = null;
+    if('WebSocket' in window){
+        websocket = new WebSocket("ws://127.0.0.1:9999/webSocket/1");
+    }else{
+        alert("您的浏览器不支持websocket");
+    }
+    websocket.onerror = function(){
+        setMessageInHtml("send error！");
+    }
+    websocket.onopen = function(){
+        setMessageInHtml("连接成功！")
+        setTimeout(function(){setMessageInHtml("欢迎来到这里！")
+    },2000)
+    }
+    websocket.onmessage = e => setMessageInHtml(e.data)
+    websocket.onclose = function(){
+        setMessageInHtml("连接断开！")
+    }
+    window.onbeforeunload = function(){
+        clos();
+    }
+    function setMessageInHtml(message){
+        document.getElementById('message').innerHTML += message+"</br>";
+    }
+    function close(){
+        websocket.close(3000,"强制关闭");
+    }
+    function send(){
+        var msg = document.getElementById('text').value;
+        websocket.send(msg);
+    }
+
+    document.onkeydown = function (e) { // 回车提交表单
+    // 兼容FF和IE和Opera
+        var theEvent = window["event"] || e;
+        var code = theEvent["keyCode"] || theEvent["which"] || theEvent["charCode"];
+        if (code == 13) {
+            send();
+        }
+    }
+</script>
+</body>
+</html>
